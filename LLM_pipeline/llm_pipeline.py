@@ -87,6 +87,7 @@ Transcript:
 
         response = ollama.chat(
             model="llama3",
+            format = "json",
             messages=[{"role": "user", "content": prompt}]
         )
 
@@ -100,7 +101,7 @@ Transcript:
         final_questions.extend(data.get("open_questions", []))
 
     return {
-        "summary": final_summary[:5],
+        "summary": final_summary,
         "action_items": final_actions,
         "decisions": final_decisions,
         "open_questions": final_questions
