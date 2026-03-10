@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 // Make sure this matches your Spring Boot port!
-const SPRING_API = "http://localhost:8080/api/meetings"; 
+const SPRING_API = "https://meetingcopiltot.onrender.com/api/meetings"; 
 
 function App() {
   const [view, setView] = useState("new"); // "new" or "history"
