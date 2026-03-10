@@ -27,6 +27,7 @@ Do not add explanations outside this format.
 
     response = ollama.chat(
         model="llama3",
+        format="json",
         messages=[{"role": "user", "content": prompt}]
     )
 
