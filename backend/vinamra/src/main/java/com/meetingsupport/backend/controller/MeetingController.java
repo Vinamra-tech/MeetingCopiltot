@@ -1,5 +1,7 @@
 package com.meetingsupport.backend.controller;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,20 +41,6 @@ public class MeetingController {
         return ResponseEntity.ok(meetingService.getAllMeetings());
     }
 
-    // In your MeetingController
-@PatchMapping("/action-items/{itemId}/status")
-public ResponseEntity<Void> updateActionItemStatus(
-        @PathVariable Long itemId, 
-        @RequestParam String status) {
-    
-    ActionItem item = actionItemRepository.findById(itemId)
-        .orElseThrow(() -> new RuntimeException("Item not found"));
-        
-    item.setStatus(status); // e.g., "COMPLETED"
-    actionItemRepository.save(item);
-    
-    return ResponseEntity.ok().build();
-}
 
 // In your MeetingController
 @DeleteMapping("/{meetingId}")
@@ -75,4 +63,40 @@ public ResponseEntity<Void> updateSummary(
     
     return ResponseEntity.ok().build();
 }
+
+@PatchMapping("/action-items/{itemId}/status")
+    public ResponseEntity<Void> updateActionItemStatus(
+            @PathVariable Long itemId, 
+            @RequestParam String status) {
+        
+        ActionItem item = actionItemRepository.findById(itemId)
+            .orElseThrow(() -> new RuntimeException("Action item not found"));
+            
+        item.setStatus(status); // "COMPLETED" or "PENDING"
+        actionItemRepository.save(item);
+        
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/download-csv")
+    public ResponseEntity<String> downloadActionItemsCsv(@PathVariable Long id) {
+        Meeting meeting = meetingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Meeting not found"));
+
+        String csvData = meeting.getCsvExport();
+        
+        // Safety check in case the AI didn't generate CSV data
+        if (csvData == null || csvData.trim().isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        // Set the headers to trigger a file download in the browser
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=action_items_" + id + ".csv");
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(csvData);
+    }
 }

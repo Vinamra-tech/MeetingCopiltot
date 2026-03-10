@@ -52,4 +52,8 @@ public class Meeting {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    // 🚀 NEW: Add this field to store the raw CSV string
+    @Column(columnDefinition = "TEXT")
+    private String csvExport;
 }

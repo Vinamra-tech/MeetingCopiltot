@@ -44,12 +44,14 @@ public class MeetingService {
             "- " + String.join("\n- ", aiResponse.open_questions()) : "";
 
         // 3. Map to Meeting Entity
+// 3. Map to Meeting Entity
         Meeting meeting = Meeting.builder()
                 .title(title)
                 .originalTranscript(transcript)
                 .summary(formattedSummary)
                 .openQuestions(formattedQuestions)
-                .emailDraft(aiResponse.followup_email()) // Updated field name
+                .emailDraft(aiResponse.followup_email())
+                .csvExport(aiResponse.csv_export()) // 🚀 NEW: Map the CSV data
                 .build();
 
         // 4. Map Action Items
