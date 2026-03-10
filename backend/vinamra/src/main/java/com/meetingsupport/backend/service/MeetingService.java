@@ -1,7 +1,10 @@
 package com.meetingsupport.backend.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import com.meetingsupport.backend.dto.FastApiRequest;
 import com.meetingsupport.backend.dto.FastApiResponse;
@@ -9,10 +12,8 @@ import com.meetingsupport.backend.entity.ActionItem;
 import com.meetingsupport.backend.entity.Meeting;
 import com.meetingsupport.backend.repository.MeetingRepository;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MeetingService {
@@ -28,29 +29,38 @@ public class MeetingService {
 
     @Transactional
     public Meeting processAndSaveMeeting(String title, String transcript) {
-        // 1. Send transcript to FastAPI
+        // 1. Send request to FastAPI
         FastApiResponse aiResponse = restClient.post()
-                .uri("/api/analyze") // The endpoint your teammate builds
+                .uri("/analyze") // ensure this matches your teammate's route
                 .body(new FastApiRequest(transcript))
                 .retrieve()
                 .body(FastApiResponse.class);
 
-        // 2. Map response to Meeting Entity
+        // 2. Convert Lists to Bulleted Strings for the Database
+        String formattedSummary = aiResponse.summary() != null ? 
+            "- " + String.join("\n- ", aiResponse.summary()) : "";
+            
+        String formattedQuestions = aiResponse.open_questions() != null ? 
+            "- " + String.join("\n- ", aiResponse.open_questions()) : "";
+
+        // 3. Map to Meeting Entity
         Meeting meeting = Meeting.builder()
                 .title(title)
                 .originalTranscript(transcript)
-                .summary(aiResponse.summary())
-                .openQuestions(aiResponse.open_questions())
-                .emailDraft(aiResponse.email_draft())
+                .summary(formattedSummary)
+                .openQuestions(formattedQuestions)
+                .emailDraft(aiResponse.followup_email()) // Updated field name
                 .build();
 
-        // 3. Map action items and link them to the meeting
+        // 4. Map Action Items
         if (aiResponse.action_items() != null) {
             List<ActionItem> items = aiResponse.action_items().stream()
                     .map(dto -> ActionItem.builder()
-                            .description(dto.description())
+                            .task(dto.task())             // Updated field
                             .owner(dto.owner())
                             .deadline(dto.deadline())
+                            .priority(dto.priority())     // New field
+                            .confidence(dto.confidence()) // New field
                             .status("PENDING")
                             .meeting(meeting)
                             .build())
@@ -58,7 +68,7 @@ public class MeetingService {
             meeting.setActionItems(items);
         }
 
-        // 4. Save to PostgreSQL (Cascade will save action items too)
+        // 5. Save and return
         return meetingRepository.save(meeting);
     }
     

@@ -2,11 +2,24 @@ package com.meetingsupport.backend.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record FastApiResponse(
-    String summary,
+    List<String> summary,
     List<ActionItemDTO> action_items,
-    String open_questions,
-    String email_draft
+    List<String> decisions,
+    List<String> open_questions,
+    String followup_email,
+    String csv_export
 ) {
-    public record ActionItemDTO(String description, String owner, String deadline) {}
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record ActionItemDTO(
+        String task,
+        String owner,
+        String deadline,
+        String priority,
+        Double confidence
+    ) {}
 }
