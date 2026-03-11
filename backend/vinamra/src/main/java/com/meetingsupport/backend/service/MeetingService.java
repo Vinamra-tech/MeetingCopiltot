@@ -21,10 +21,10 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final RestClient restClient;
 
-    public MeetingService(MeetingRepository meetingRepository, RestClient.Builder restClientBuilder, 
+    public MeetingService(MeetingRepository meetingRepository, 
                           @Value("${fastapi.service.url}") String fastApiUrl) {
         this.meetingRepository = meetingRepository;
-        this.restClient = restClientBuilder.baseUrl(fastApiUrl).build();
+        this.restClient = RestClient.builder().baseUrl(fastApiUrl).build();
     }
 
     @Transactional
