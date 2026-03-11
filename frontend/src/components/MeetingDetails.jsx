@@ -16,15 +16,9 @@ export default function MeetingDetails({ result }) {
     ));
 
     try {
-<<<<<<< HEAD
-      // Changed to relative / dynamic approach but kept original port for safety if it was hardcoded for a reason, 
-      // however we should use the same base as App.jsx. Let's assume it should go through the same flow or absolute URL.
       // Use imported environment variable or fallback to localhost
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings";
       await axios.patch(`${apiBaseUrl}/action-items/${itemId}/status?status=${newStatus}`);
-=======
-      await axios.patch(`http://localhost:8080/api/meetings/action-items/${itemId}/status?status=${newStatus}`);
->>>>>>> c5bef1e8e278dfce604f2e922e99b50550f02729
     } catch (error) {
       console.error("Failed to update status", error);
       // Revert if backend fails
@@ -82,16 +76,9 @@ export default function MeetingDetails({ result }) {
             Action Items
           </h4>
           
-<<<<<<< HEAD
-          {result.csvExport && (
-            <a 
-              href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings"}/${result.id}/download-csv`}
-              download
-=======
           <div style={{ display: 'flex', gap: '8px' }}>
             <button 
               onClick={() => copyToClipboard(generateMarkdownActionItems(), 'Action Items')}
->>>>>>> c5bef1e8e278dfce604f2e922e99b50550f02729
               className="md-download-btn"
               title="Copy as Markdown"
             >
@@ -101,7 +88,7 @@ export default function MeetingDetails({ result }) {
 
             {result.csvExport && (
               <a 
-                href={`http://localhost:8080/api/meetings/${result.id}/download-csv`}
+                href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings"}/${result.id}/download-csv`}
                 download
                 className="md-download-btn"
               >
