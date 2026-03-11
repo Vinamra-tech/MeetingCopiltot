@@ -18,8 +18,9 @@ export default function MeetingDetails({ result }) {
     try {
       // Changed to relative / dynamic approach but kept original port for safety if it was hardcoded for a reason, 
       // however we should use the same base as App.jsx. Let's assume it should go through the same flow or absolute URL.
-      // Notice the original App had `http://localhost:8080` hardcoded for this call.
-      await axios.patch(`http://localhost:8080/api/meetings/action-items/${itemId}/status?status=${newStatus}`);
+      // Use imported environment variable or fallback to localhost
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings";
+      await axios.patch(`${apiBaseUrl}/action-items/${itemId}/status?status=${newStatus}`);
     } catch (error) {
       console.error("Failed to update status", error);
       // Revert if backend fails
@@ -55,7 +56,7 @@ export default function MeetingDetails({ result }) {
           
           {result.csvExport && (
             <a 
-              href={`http://localhost:8080/api/meetings/${result.id}/download-csv`}
+              href={`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings"}/${result.id}/download-csv`}
               download
               className="md-download-btn"
             >

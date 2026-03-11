@@ -3,8 +3,8 @@ import axios from "axios";
 import MeetingDetails from "./components/MeetingDetails";
 import "./App.css";
 
-// Make sure this matches your Spring Boot port!
-const SPRING_API = "https://meetingcopiltot.onrender.com/api/meetings"; 
+// Use environment variable for API URL or fallback to localhost
+const SPRING_API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings"; 
 
 function App() {
   const [view, setView] = useState("new"); // "new" or "history"
