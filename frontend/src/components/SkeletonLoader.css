@@ -1,0 +1,81 @@
+/* SkeletonLoader.css */
+
+.skeleton-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Shimmer animation keyframes */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+/* Base style for shimmering items */
+.skeleton-title,
+.skeleton-icon,
+.skeleton-text {
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface) 25%,
+    var(--bg-surface-hover) 50%,
+    var(--bg-surface) 75%
+  );
+  background-size: 400px 100%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 200px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-card {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.skeleton-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.skeleton-heading {
+  height: 20px;
+  width: 150px;
+}
+
+.skeleton-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-text {
+  height: 16px;
+}
+
+.w-100 { width: 100%; }
+.w-90 { width: 90%; }
+.w-80 { width: 80%; }
+.w-60 { width: 60%; }

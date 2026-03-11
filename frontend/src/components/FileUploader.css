@@ -1,0 +1,65 @@
+/* FileUploader.css */
+
+.file-uploader {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background-color: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.file-uploader:hover {
+  border-color: var(--accent-primary);
+  background-color: var(--bg-surface-hover);
+}
+
+.file-uploader.dragging {
+  border-color: var(--accent-primary);
+  background-color: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.uploader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.uploader-icon {
+  color: var(--accent-primary);
+  opacity: 0.8;
+  transition: transform 0.2s ease;
+}
+
+.file-uploader:hover .uploader-icon {
+  transform: translateY(-5px);
+  opacity: 1;
+}
+
+.file-uploader.dragging .uploader-icon {
+  transform: scale(1.1);
+  color: var(--accent-primary);
+}
+
+.uploader-text {
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.uploader-text strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.uploader-subtext {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  margin-top: 0.5rem;
+}

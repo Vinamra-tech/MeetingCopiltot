@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import MeetingDetails from "./components/MeetingDetails";
+import ToastContainer, { toast } from "./components/Toast";
+import LiveRecorder from "./components/LiveRecorder";
+import FileUploader from "./components/FileUploader";
+import SkeletonLoader from "./components/SkeletonLoader";
+import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import "./App.css";
 
 // Use environment variable for API URL or fallback to localhost
 const SPRING_API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/meetings"; 
 
 function App() {
-  const [view, setView] = useState("new"); // "new" or "history"
+  const [view, setView] = useState("new");  // "new" or "history"
   const [title, setTitle] = useState("Q1 Sync");
   const [transcript, setTranscript] = useState("");
   const [currentResult, setCurrentResult] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
+  
   // Fetch past meetings from Spring Boot Postgres DB
   const fetchHistory = async () => {
     try {
@@ -22,7 +26,7 @@ function App() {
       setHistory(res.data);
     } catch (err) {
       console.error("Failed to fetch history", err);
-      setError("Could not load past meetings. Is Spring Boot running?");
+      toast.error("Could not load past meetings. Is Spring Boot running?");
     }
   };
 
@@ -35,12 +39,12 @@ function App() {
 
   const analyzeMeeting = async () => {
     if (!transcript.trim()) {
-      setError("Please paste a transcript first.");
+      toast.error("Please provide a transcript (record, upload, or paste).");
       return;
     }
     
     setLoading(true);
-    setError("");
+    setCurrentResult(null); // Clear previous results while loading
     
     try {
       const res = await axios.post(
@@ -50,9 +54,10 @@ function App() {
       );
       setCurrentResult(res.data);
       setTranscript(""); // Clear input after success
+      toast.success("Meeting analyzed successfully!");
     } catch (err) {
       console.error(err);
-      setError("Backend failed. Check Spring Boot console.");
+      toast.error("Backend failed. Check Spring Boot console.");
     } finally {
       setLoading(false);
     }
@@ -60,7 +65,9 @@ function App() {
 
   return (
     <div className="app-container">
-      
+      {/* Toast Notification Container */}
+      <ToastContainer />
+
       {/* Header & Navigation */}
       <header className="app-header">
         <h1 className="app-title">
@@ -85,14 +92,6 @@ function App() {
         </div>
       </header>
 
-      {/* Global Error Banner */}
-      {error && (
-        <div className="alert-banner fade-in">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-          {error}
-        </div>
-      )}
-
       {/* VIEW 1: NEW MEETING */}
       {view === "new" && (
         <div className="fade-in">
@@ -105,10 +104,18 @@ function App() {
               placeholder="Meeting Title" 
             />
           </div>
+          
+          <LiveRecorder 
+            onTranscriptUpdate={(text) => setTranscript(text)} 
+            onStopAndAnalyze={analyzeMeeting}
+          />
+
+          <FileUploader onFileLoad={(text) => setTranscript(text)} />
+          
           <div className="input-group">
             <textarea
               className="form-textarea"
-              placeholder="Paste meeting transcript here to extract action items, open questions, and generate a summary..."
+              placeholder="Or paste meeting transcript here directly..."
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
             />
@@ -131,14 +138,19 @@ function App() {
             )}
           </button>
 
+          {/* Show Skeleton Loader instead of "Processing..." text when loading */}
+          {loading && <SkeletonLoader />}
+
           {/* Render Result immediately after analysis */}
-          {currentResult && <MeetingDetails result={currentResult} />}
+          {!loading && currentResult && <MeetingDetails result={currentResult} />}
         </div>
       )}
 
       {/* VIEW 2: HISTORY DASHBOARD */}
       {view === "history" && (
         <div className="fade-in">
+          <AnalyticsDashboard history={history} />
+          
           <h2 className="history-title">Your Past Meetings</h2>
           {history.length === 0 ? (
             <div className="history-empty">
