@@ -1,0 +1,137 @@
+/* LiveRecorder.css */
+
+.recorder-container {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recorder-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.recorder-header.recording-active {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+}
+
+.mic-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.mic-button:hover:not(.pulsing) {
+  background: var(--text-tertiary);
+  transform: scale(1.05);
+}
+
+.mic-button.pulsing {
+  background: var(--error);
+  color: white;
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.recorder-status {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.status-blinker {
+  color: var(--error);
+  animation: blink 1.5s linear infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.live-transcript-box {
+  background-color: var(--bg-primary);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.transcript-content {
+  min-height: 100px;
+  max-height: 250px;
+  overflow-y: auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.final-text {
+  color: var(--text-primary);
+}
+
+.interim-text {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.btn-analyze-live {
+  align-self: flex-end;
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-analyze-live:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-analyze-live:disabled {
+  background: var(--bg-surface);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  box-shadow: none;
+}

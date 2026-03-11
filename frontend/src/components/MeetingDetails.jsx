@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast } from './Toast';
 import './MeetingDetails.css';
 
 export default function MeetingDetails({ result }) {
@@ -14,11 +15,7 @@ export default function MeetingDetails({ result }) {
       item.id === itemId ? { ...item, status: newStatus } : item
     ));
 
-    // Send to Backend
     try {
-      // Changed to relative / dynamic approach but kept original port for safety if it was hardcoded for a reason, 
-      // however we should use the same base as App.jsx. Let's assume it should go through the same flow or absolute URL.
-      // Notice the original App had `http://localhost:8080` hardcoded for this call.
       await axios.patch(`http://localhost:8080/api/meetings/action-items/${itemId}/status?status=${newStatus}`);
     } catch (error) {
       console.error("Failed to update status", error);
@@ -26,9 +23,24 @@ export default function MeetingDetails({ result }) {
       setItems(items.map(item => 
         item.id === itemId ? { ...item, status: currentStatus } : item
       ));
-      // Use a custom non-blocking alert in a real app, but fallback to Window.alert for now
-      alert("Failed to save to database. Is Spring Boot running?");
+      toast.error("Failed to save to database. Is Spring Boot running?");
     }
+  };
+
+  const copyToClipboard = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied to clipboard!`);
+    } catch (err) {
+      toast.error('Failed to copy text.');
+    }
+  };
+
+  const generateMarkdownActionItems = () => {
+    if (!items || items.length === 0) return "No action items.";
+    return items.map(item => 
+      `- [${item.status === 'COMPLETED' ? 'x' : ' '}] **${item.task}** (Owner: ${item.owner}, Deadline: ${item.deadline}, Priority: ${item.priority})`
+    ).join('\n');
   };
 
   return (
@@ -36,10 +48,19 @@ export default function MeetingDetails({ result }) {
       
       {/* Summary Section */}
       <section className="md-section">
-        <h4 className="md-section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          Executive Summary
-        </h4>
+        <div className="md-section-header">
+          <h4 className="md-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Executive Summary
+          </h4>
+          <button 
+            onClick={() => copyToClipboard(result.summary, 'Summary')}
+            className="md-icon-btn" 
+            title="Copy Summary"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
         <div className="md-card md-summary">
           {result.summary}
         </div>
@@ -53,16 +74,27 @@ export default function MeetingDetails({ result }) {
             Action Items
           </h4>
           
-          {result.csvExport && (
-            <a 
-              href={`http://localhost:8080/api/meetings/${result.id}/download-csv`}
-              download
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              onClick={() => copyToClipboard(generateMarkdownActionItems(), 'Action Items')}
               className="md-download-btn"
+              title="Copy as Markdown"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Export CSV
-            </a>
-          )}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy Markdown
+            </button>
+
+            {result.csvExport && (
+              <a 
+                href={`http://localhost:8080/api/meetings/${result.id}/download-csv`}
+                download
+                className="md-download-btn"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Export CSV
+              </a>
+            )}
+          </div>
         </div>
 
         {items.length === 0 ? (
@@ -110,10 +142,18 @@ export default function MeetingDetails({ result }) {
       {/* Open Questions */}
       {result.openQuestions && result.openQuestions.trim() && (
         <section className="md-section">
-          <h4 className="md-section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            Open Questions
-          </h4>
+          <div className="md-section-header">
+            <h4 className="md-section-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              Open Questions
+            </h4>
+            <button 
+              onClick={() => copyToClipboard(result.openQuestions, 'Questions')}
+              className="md-icon-btn" 
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+          </div>
           <div className="md-card md-questions">
             {result.openQuestions}
           </div>
@@ -123,10 +163,18 @@ export default function MeetingDetails({ result }) {
       {/* Follow-up Email */}
       {result.followupEmail && result.followupEmail.trim() && (
         <section className="md-section">
-          <h4 className="md-section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            Follow-up Email Draft
-          </h4>
+          <div className="md-section-header">
+            <h4 className="md-section-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              Follow-up Email Draft
+            </h4>
+            <button 
+              onClick={() => copyToClipboard(result.followupEmail, 'Email Draft')}
+              className="md-icon-btn" 
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+          </div>
           <div className="md-card md-email">
             {result.followupEmail}
           </div>
