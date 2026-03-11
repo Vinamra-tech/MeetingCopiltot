@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import MeetingDetails from "./components/MeetingDetails";
+import "./App.css";
 
 // Make sure this matches your Spring Boot port!
 const SPRING_API = "https://meetingcopiltot.onrender.com/api/meetings"; 
@@ -32,7 +34,7 @@ function App() {
   }, [view]);
 
   const analyzeMeeting = async () => {
-    if (!transcript) {
+    if (!transcript.trim()) {
       setError("Please paste a transcript first.");
       return;
     }
@@ -57,57 +59,76 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial", maxWidth: "900px", margin: "0 auto", color: "#e0e0e0" }}>
+    <div className="app-container">
       
       {/* Header & Navigation */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-        <h1 style={{ margin: 0 }}>🧠 AI Meeting Co-Pilot</h1>
-        <div>
+      <header className="app-header">
+        <h1 className="app-title">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"></path><path d="M15 13v4"></path><path d="M9 13v4"></path></svg>
+          AI Meeting Co-Pilot
+        </h1>
+        <div className="nav-pills">
           <button 
+            className={`nav-button ${view === "new" ? "active" : ""}`}
             onClick={() => setView("new")} 
-            style={{ marginRight: "10px", backgroundColor: view === "new" ? "#646cff" : "#333" }}
           >
-            ➕ New Meeting
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Meeting
           </button>
           <button 
+            className={`nav-button ${view === "history" ? "active" : ""}`}
             onClick={() => setView("history")}
-            style={{ backgroundColor: view === "history" ? "#646cff" : "#333" }}
           >
-            📚 History
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            History
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Global Error Banner */}
       {error && (
-        <div style={{ backgroundColor: "#ff4a4a", color: "white", padding: "10px", borderRadius: "5px", marginBottom: "20px" }}>
-          ⚠️ {error}
+        <div className="alert-banner fade-in">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          {error}
         </div>
       )}
 
       {/* VIEW 1: NEW MEETING */}
       {view === "new" && (
-        <div>
-          <input 
-            type="text" 
-            value={title} 
-            onChange={(e) => setTitle(e.target.value)} 
-            placeholder="Meeting Title" 
-            style={{ padding: "12px", width: "100%", marginBottom: "15px", fontSize: "16px", borderRadius: "6px", border: "none", backgroundColor: "#2d2d2d", color: "white" }}
-          />
-          <textarea
-            rows="8"
-            style={{ width: "100%", padding: "12px", fontSize: "14px", borderRadius: "6px", border: "none", backgroundColor: "#2d2d2d", color: "white", marginBottom: "15px" }}
-            placeholder="Paste meeting transcript here..."
-            value={transcript}
-            onChange={(e) => setTranscript(e.target.value)}
-          />
+        <div className="fade-in">
+          <div className="input-group">
+            <input 
+              className="form-input"
+              type="text" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              placeholder="Meeting Title" 
+            />
+          </div>
+          <div className="input-group">
+            <textarea
+              className="form-textarea"
+              placeholder="Paste meeting transcript here to extract action items, open questions, and generate a summary..."
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
+            />
+          </div>
           <button 
+            className="btn-primary"
             onClick={analyzeMeeting} 
             disabled={loading} 
-            style={{ width: "100%", padding: "15px", fontSize: "16px", backgroundColor: loading ? "#555" : "#10a37f" }}
           >
-            {loading ? "⏳ Spring Boot & AI are processing..." : "✨ Analyze Transcript"}
+            {loading ? (
+              <>
+                <svg className="loading-indicator" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+                Processing Transcript...
+              </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Analyze Transcript
+              </>
+            )}
           </button>
 
           {/* Render Result immediately after analysis */}
@@ -117,125 +138,26 @@ function App() {
 
       {/* VIEW 2: HISTORY DASHBOARD */}
       {view === "history" && (
-        <div>
-          <h2>Your Past Meetings</h2>
+        <div className="fade-in">
+          <h2 className="history-title">Your Past Meetings</h2>
           {history.length === 0 ? (
-            <p style={{ color: "#888" }}>No meetings found in database.</p>
+            <div className="history-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: "1rem", opacity: 0.5 }}><path d="M2 12h20"></path><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"></path><path d="M4 6h16"></path><path d="M6 2h12"></path></svg>
+              <p>No meetings found in database.</p>
+            </div>
           ) : (
             history.map((meeting) => (
-              <div key={meeting.id} style={{ backgroundColor: "#1e1e1e", padding: "20px", borderRadius: "8px", marginBottom: "20px", borderLeft: "4px solid #646cff" }}>
-                <h3 style={{ marginTop: 0 }}>{meeting.title} <span style={{ fontSize: "12px", color: "#888", fontWeight: "normal" }}> (ID: {meeting.id})</span></h3>
+              <div key={meeting.id} className="meeting-card">
+                <h3 className="meeting-card-title">
+                  {meeting.title} 
+                  <span className="meeting-id">ID: {meeting.id}</span>
+                </h3>
                 <MeetingDetails result={meeting} />
               </div>
             ))
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-// Extracted the result UI into a reusable component
-// Extracted the result UI into an interactive component
-function MeetingDetails({ result }) {
-  // Store action items in local state so we can toggle them without reloading the page
-  const [items, setItems] = useState(result.actionItems || []);
-
-  const toggleStatus = async (itemId, currentStatus) => {
-    // Determine the new status
-    const newStatus = currentStatus === "COMPLETED" ? "PENDING" : "COMPLETED";
-
-    // 1. OPTIMISTIC UPDATE: Update the UI instantly so it feels fast
-    setItems(items.map(item => 
-      item.id === itemId ? { ...item, status: newStatus } : item
-    ));
-
-    // 2. SEND TO SPRING BOOT: Update the actual PostgreSQL database
-    try {
-      await axios.patch(`http://localhost:8080/api/meetings/action-items/${itemId}/status?status=${newStatus}`);
-    } catch (error) {
-      console.error("Failed to update status", error);
-      // Revert the UI if the backend fails
-      setItems(items.map(item => 
-        item.id === itemId ? { ...item, status: currentStatus } : item
-      ));
-      alert("Failed to save to database. Is Spring Boot running?");
-    }
-  };
-
-  return (
-    <div style={{ marginTop: "20px" }}>
-      <h4 style={{ color: "#a5b4fc", borderBottom: "1px solid #333", paddingBottom: "5px" }}>Executive Summary</h4>
-      <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, color: "#d1d5db" }}>{result.summary}</pre>
-
-      {/* 🚀 NEW: The Flexbox container holding the Title and the CSV Button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px", borderBottom: "1px solid #333", paddingBottom: "5px" }}>
-        <h4 style={{ color: "#a5b4fc", margin: 0 }}>✅ Action Items</h4>
-        
-        {/* Only show button if the backend returned CSV data */}
-        {result.csvExport && (
-          <a 
-            href={`http://localhost:8080/api/meetings/${result.id}/download-csv`}
-            download
-            style={{ 
-              backgroundColor: "#10a37f", 
-              color: "white", 
-              padding: "8px 15px", 
-              textDecoration: "none", 
-              borderRadius: "5px",
-              fontSize: "14px",
-              fontWeight: "bold"
-            }}
-          >
-            📥 Download CSV
-          </a>
-        )}
-      </div>
-
-      <ul style={{ listStyleType: "none", padding: 0, margin: "15px 0 0 0" }}>
-        {items.map((a) => (
-          <li key={a.id} style={{ 
-              backgroundColor: "#2d2d2d", 
-              padding: "15px", 
-              marginBottom: "10px", 
-              borderRadius: "6px", 
-              display: "flex", 
-              alignItems: "center",
-              // Dim the item visually if it's completed
-              opacity: a.status === "COMPLETED" ? 0.6 : 1,
-              transition: "opacity 0.2s"
-            }}>
-            
-            {/* The Interactive Checkbox */}
-            <input 
-              type="checkbox" 
-              checked={a.status === "COMPLETED"}
-              onChange={() => toggleStatus(a.id, a.status)}
-              style={{ marginRight: "15px", transform: "scale(1.5)", cursor: "pointer" }} 
-            />
-            
-            <div>
-              <strong style={{ 
-                textDecoration: a.status === "COMPLETED" ? "line-through" : "none",
-                color: a.status === "COMPLETED" ? "#888" : "#fff"
-              }}>
-                {a.task}
-              </strong> <br/>
-              <span style={{ color: "#aaa", fontSize: "13px" }}>
-                👤 {a.owner} | 📅 {a.deadline} | ⚡ {a.priority}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <h4 style={{ color: "#a5b4fc", borderBottom: "1px solid #333", paddingBottom: "5px", marginTop: "20px" }}>❓ Open Questions</h4>
-      <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, color: "#d1d5db" }}>{result.openQuestions}</pre>
-
-      <h4 style={{ color: "#a5b4fc", borderBottom: "1px solid #333", paddingBottom: "5px", marginTop: "20px" }}>📧 Follow-up Email Draft</h4>
-      <div style={{ backgroundColor: "#2a2a2a", padding: "15px", borderRadius: "6px", fontFamily: "monospace", whiteSpace: "pre-wrap", fontSize: "13px", color: "#a5b4fc" }}>
-        {result.followupEmail}
-      </div>
     </div>
   );
 }
