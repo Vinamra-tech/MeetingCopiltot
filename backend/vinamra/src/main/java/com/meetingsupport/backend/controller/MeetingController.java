@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/meetings")
-@CrossOrigin(origins = "http://localhost:3000") // Allow React to call this API
+@CrossOrigin(origins = "*") // Allow React to call this API
 @RequiredArgsConstructor
 public class MeetingController {
 
