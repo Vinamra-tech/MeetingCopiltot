@@ -31,7 +31,7 @@ public class MeetingService {
     public Meeting processAndSaveMeeting(String title, String transcript) {
         // 1. Send request to FastAPI
         FastApiResponse aiResponse = restClient.post()
-                .uri("/analyze") // ensure this matches your teammate's route
+                .uri("analyze") // ensure this matches your teammate's route
                 .body(new FastApiRequest(transcript))
                 .retrieve()
                 .body(FastApiResponse.class);
